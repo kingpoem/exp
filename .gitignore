@@ -1,0 +1,257 @@
+# ============================================
+# 项目通用忽略文件
+# ============================================
+
+# 操作系统文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+.directory
+
+# IDE 和编辑器
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+.project
+.classpath
+.settings/
+*.sublime-*
+
+# ============================================
+# A题：C语言项目
+# ============================================
+
+# 编译生成的文件
+a/select
+a/*.o
+a/*.a
+a/*.so
+a/*.dylib
+a/*.exe
+
+# 测试报告（可选：如果不想提交测试报告，取消下面的注释）
+# a/test_report.txt
+# a/test_report.html
+
+# ============================================
+# B1题：Python项目
+# ============================================
+
+# Python 字节码
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Python 虚拟环境
+venv/
+env/
+ENV/
+.venv/
+.ENV/
+
+# Python 包管理
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# uv 相关
+.uv/
+uv.lock
+
+# Python 类型检查
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pytype/
+.pyre/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pytest
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# ============================================
+# B2题：Flutter/Dart 项目
+# ============================================
+
+# Flutter/Dart 相关
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+*.iml
+*.lock
+
+# Android 相关
+b2/android/.gradle/
+b2/android/local.properties
+b2/android/**/build/
+b2/android/.idea/
+b2/android/*.iml
+b2/android/.DS_Store
+b2/android/app/debug/
+b2/android/app/profile/
+b2/android/app/release/
+
+# iOS 相关
+b2/ios/Pods/
+b2/ios/.symlinks/
+b2/ios/Flutter/Flutter.framework
+b2/ios/Flutter/Flutter.podspec
+b2/ios/Flutter/ephemeral/
+b2/ios/Flutter/Generated.xcconfig
+b2/ios/Flutter/flutter_export_environment.sh
+b2/ios/ServiceDefinitions.json
+b2/ios/Runner/GeneratedPluginRegistrant.*
+
+# macOS 相关
+b2/macos/Flutter/ephemeral/
+b2/macos/Flutter/Flutter-Debug.xcconfig
+b2/macos/Flutter/Flutter-Release.xcconfig
+b2/macos/Flutter/Flutter-Generated.xcconfig
+b2/macos/Flutter/flutter_export_environment.sh
+b2/macos/Flutter/GeneratedPluginRegistrant.swift
+
+# Linux 相关
+b2/linux/flutter/ephemeral/
+
+# Windows 相关
+b2/windows/flutter/ephemeral/
+
+# Web 相关
+b2/web/
+
+# APK 构建产物
+b2/build/app/outputs/
+*.apk
+*.aab
+*.apks
+
+# ============================================
+# B3题：Rust + Bun + Tauri 项目
+# ============================================
+
+# Rust 编译产物
+b3/target/
+b3/**/target/
+*.pdb
+Cargo.lock
+
+# Tauri 构建产物
+b3/src-tauri/target/
+b3/src-tauri/dist/
+
+# Bun 相关
+b3/node_modules/
+b3/.bun/
+b3/bun.lockb
+b3/dist/
+b3/.next/
+b3/.nuxt/
+b3/.output/
+
+# Tauri 前端构建
+b3/src/dist/
+
+# ============================================
+# B4题：Rust + Tauri 项目
+# ============================================
+
+# Rust 编译产物
+b4/target/
+b4/**/target/
+*.pdb
+Cargo.lock
+
+# Tauri 构建产物
+b4/src-tauri/target/
+b4/src-tauri/dist/
+
+# Node.js/Bun 相关
+b4/node_modules/
+b4/.bun/
+b4/bun.lockb
+b4/dist/
+b4/.next/
+b4/.nuxt/
+b4/.output/
+
+# Tauri 前端构建
+b4/src/dist/
+
+# ============================================
+# 日志和临时文件
+# ============================================
+
+*.log
+*.tmp
+*.temp
+*.bak
+*.backup
+*.cache
+*.pid
+*.seed
+*.pid.lock
+
+# ============================================
+# 敏感信息（根据实际情况调整）
+# ============================================
+
+# 环境变量文件
+.env
+.env.local
+.env.*.local
+*.env
+
+# 配置文件中的敏感信息
+*secret*
+*password*
+*key*
+*.pem
+*.key
+*.cert
+*.crt
+
+# 数据库文件
+*.db
+*.sqlite
+*.sqlite3
+
+# ============================================
+# 其他
+# ============================================
+
+# 压缩文件（可选）
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+
+# 文档生成（可选）
+docs/_build/
+site/
+

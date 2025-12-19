@@ -1,0 +1,81 @@
+{
+  "community": {
+    "name": "12",
+    "building_count": 1
+  },
+  "room_types": [
+    {
+      "room_type_id": "RT001",
+      "room_type": "一室一厅",
+      "area": 60.0
+    },
+    {
+      "room_type_id": "RT002",
+      "room_type": "两室一厅",
+      "area": 90.0
+    },
+    {
+      "room_type_id": "RT003",
+      "room_type": "三室两厅",
+      "area": 120.0
+    }
+  ],
+  "residents": [
+    {
+      "resident_id": "R001",
+      "name": "张三",
+      "phone": "13800138001",
+      "address": "1号楼101",
+      "prepaid_amount": 5000.0,
+      "arrears": 500.0,
+      "room_type_id": "RT001"
+    },
+    {
+      "resident_id": "R002",
+      "name": "李四",
+      "phone": "13800138002",
+      "address": "2号楼201",
+      "prepaid_amount": 3000.0,
+      "arrears": 1200.0,
+      "room_type_id": "RT002"
+    },
+    {
+      "resident_id": "R003",
+      "name": "王五",
+      "phone": "13800138003",
+      "address": "3号楼301",
+      "prepaid_amount": 8000.0,
+      "arrears": 0.0,
+      "room_type_id": "RT003"
+    }
+  ],
+  "repairs": [],
+  "complaints": [],
+  "parking_spaces": [
+    {
+      "space_id": "P001",
+      "resident_id": "R001",
+      "location": "地下停车场A区001"
+    },
+    {
+      "space_id": "P002",
+      "resident_id": "R002",
+      "location": "地下停车场B区002"
+    }
+  ],
+  "fees": [],
+  "users": [
+    {
+      "username": "admin",
+      "password": "admin123",
+      "role": "超级管理员",
+      "resident_id": null
+    },
+    {
+      "username": "user1",
+      "password": "user123",
+      "role": "普通用户",
+      "resident_id": "R001"
+    }
+  ]
+}
