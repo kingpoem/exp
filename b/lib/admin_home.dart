@@ -28,7 +28,7 @@ class _AdminHomePageState extends State<AdminHomePage> with SingleTickerProvider
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 8, vsync: this);
+    _tabController = TabController(length: 9, vsync: this);
     _loadData();
   }
 
@@ -129,6 +129,7 @@ class _AdminHomePageState extends State<AdminHomePage> with SingleTickerProvider
             Tab(text: '投诉管理', icon: Icon(Icons.report)),
             Tab(text: '停车位', icon: Icon(Icons.local_parking)),
             Tab(text: '收费管理', icon: Icon(Icons.payment)),
+            Tab(text: '用户管理', icon: Icon(Icons.person_add)),
             Tab(text: '统计查询', icon: Icon(Icons.analytics)),
           ],
         ),
@@ -155,6 +156,7 @@ class _AdminHomePageState extends State<AdminHomePage> with SingleTickerProvider
           _buildComplaintTab(),
           _buildParkingTab(),
           _buildFeeTab(),
+          _buildUserTab(),
           _buildStatsTab(),
         ],
       ),
@@ -257,6 +259,21 @@ class _AdminHomePageState extends State<AdminHomePage> with SingleTickerProvider
                 ..._system!.roomTypes.map((rt) => ListTile(
                       title: Text(rt.roomType),
                       subtitle: Text('${rt.roomTypeId} - ${rt.area}㎡'),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.blue),
+                            onPressed: () => _showEditRoomTypeDialog(rt),
+                            tooltip: '编辑',
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () => _showDeleteRoomTypeDialog(rt),
+                            tooltip: '删除',
+                          ),
+                        ],
+                      ),
                     )),
               ],
             ),
@@ -345,24 +362,39 @@ class _AdminHomePageState extends State<AdminHomePage> with SingleTickerProvider
                     padding: EdgeInsets.all(16),
                     child: Text('暂无住户记录'),
                   )
-                else
+                  else
                   ...displayResidents.map((r) => ListTile(
                         title: Text(r.name),
                         subtitle: Text('${r.residentId} - ${r.phone} - ${r.address}'),
-                        trailing: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.end,
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
-                              '欠费: ${r.arrears.toStringAsFixed(2)}元',
-                              style: TextStyle(
-                                color: r.arrears > 0 ? Colors.red : Colors.green,
-                                fontWeight: FontWeight.bold,
-                              ),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  '欠费: ${r.arrears.toStringAsFixed(2)}元',
+                                  style: TextStyle(
+                                    color: r.arrears > 0 ? Colors.red : Colors.green,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  '预付: ${r.prepaidAmount.toStringAsFixed(2)}元',
+                                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                ),
+                              ],
                             ),
-                            Text(
-                              '预付: ${r.prepaidAmount.toStringAsFixed(2)}元',
-                              style: const TextStyle(fontSize: 12, color: Colors.grey),
+                            IconButton(
+                              icon: const Icon(Icons.edit, color: Colors.blue),
+                              onPressed: () => _showEditResidentDialog(r),
+                              tooltip: '编辑',
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => _showDeleteResidentDialog(r),
+                              tooltip: '删除',
                             ),
                           ],
                         ),
@@ -390,7 +422,22 @@ class _AdminHomePageState extends State<AdminHomePage> with SingleTickerProvider
               return ListTile(
                 title: Text(resident.name),
                 subtitle: Text(r.description),
-                trailing: Chip(label: Text(r.status)),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Chip(label: Text(r.status)),
+                    IconButton(
+                      icon: const Icon(Icons.edit, color: Colors.blue),
+                      onPressed: () => _showEditRepairDialog(r),
+                      tooltip: '编辑',
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () => _showDeleteRepairDialog(r),
+                      tooltip: '删除',
+                    ),
+                  ],
+                ),
               );
             }),
             if (_system!.repairs.isEmpty)
@@ -419,7 +466,22 @@ class _AdminHomePageState extends State<AdminHomePage> with SingleTickerProvider
               return ListTile(
                 title: Text(resident.name),
                 subtitle: Text(c.content),
-                trailing: Chip(label: Text(c.status)),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Chip(label: Text(c.status)),
+                    IconButton(
+                      icon: const Icon(Icons.edit, color: Colors.blue),
+                      onPressed: () => _showEditComplaintDialog(c),
+                      tooltip: '编辑',
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () => _showDeleteComplaintDialog(c),
+                      tooltip: '删除',
+                    ),
+                  ],
+                ),
               );
             }),
             if (_system!.complaints.isEmpty)
@@ -455,6 +517,21 @@ class _AdminHomePageState extends State<AdminHomePage> with SingleTickerProvider
                   return ListTile(
                     title: Text('${ps.spaceId} - ${resident.name}'),
                     subtitle: Text(ps.location),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.edit, color: Colors.blue),
+                          onPressed: () => _showEditParkingDialog(ps),
+                          tooltip: '编辑',
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () => _showDeleteParkingDialog(ps),
+                          tooltip: '删除',
+                        ),
+                      ],
+                    ),
                   );
                 }),
               ],
@@ -482,7 +559,74 @@ class _AdminHomePageState extends State<AdminHomePage> with SingleTickerProvider
             ..._system!.fees.map((f) => ListTile(
                   title: Text(f.name),
                   subtitle: Text('${f.amount.toStringAsFixed(2)}元/${f.unit} - ${f.cycle}'),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit, color: Colors.blue),
+                        onPressed: () => _showEditFeeDialog(f),
+                        tooltip: '编辑',
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () => _showDeleteFeeDialog(f),
+                        tooltip: '删除',
+                      ),
+                    ],
+                  ),
                 )),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUserTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Card(
+        child: Column(
+          children: [
+            ListTile(
+              title: const Text('用户列表', style: TextStyle(fontWeight: FontWeight.bold)),
+              trailing: IconButton(
+                icon: const Icon(Icons.add),
+                onPressed: () => _showAddUserDialog(),
+              ),
+            ),
+            const Divider(),
+            if (_system!.users.isEmpty)
+              const Padding(
+                padding: EdgeInsets.all(16),
+                child: Text('暂无用户记录'),
+              )
+            else
+              ..._system!.users.map((u) => ListTile(
+                    title: Text(u.username),
+                    subtitle: Text('角色: ${u.role}${u.residentId != null ? ' | 关联住户: ${u.residentId}' : ''}'),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // 不允许删除当前登录的管理员
+                        if (u.username != widget.authService.getCurrentUser()?.username) ...[
+                          IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.blue),
+                            onPressed: () => _showEditUserDialog(u),
+                            tooltip: '编辑',
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () => _showDeleteUserDialog(u),
+                            tooltip: '删除',
+                          ),
+                        ] else
+                          const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: Text('当前用户', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                          ),
+                      ],
+                    ),
+                  )),
           ],
         ),
       ),
@@ -501,6 +645,7 @@ class _AdminHomePageState extends State<AdminHomePage> with SingleTickerProvider
           _buildStatCard('总报修数', '${_system!.repairs.length}'),
           _buildStatCard('总投诉数', '${_system!.complaints.length}'),
           _buildStatCard('总停车位数', '${_system!.parkingSpaces.length}'),
+          _buildStatCard('总用户数', '${_system!.users.length}'),
         ],
       ),
     );
@@ -974,6 +1119,912 @@ class _AdminHomePageState extends State<AdminHomePage> with SingleTickerProvider
           ),
         ],
       ),
+    );
+  }
+
+  // ========== 编辑对话框方法 ==========
+
+  void _showEditRoomTypeDialog(RoomType roomType) {
+    final roomTypeIdController = TextEditingController(text: roomType.roomTypeId);
+    final roomTypeController = TextEditingController(text: roomType.roomType);
+    final areaController = TextEditingController(text: roomType.area.toString());
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('编辑房型'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: roomTypeIdController,
+                decoration: const InputDecoration(labelText: '房型编号'),
+                enabled: false, // 编号不可修改
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: roomTypeController,
+                decoration: const InputDecoration(labelText: '房型'),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: areaController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: '建筑面积 (㎡)'),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final type = roomTypeController.text.trim();
+              final area = double.tryParse(areaController.text.trim());
+              
+              if (type.isEmpty || area == null || area <= 0) {
+                _showSnackBar('请填写有效信息');
+                return;
+              }
+              
+              final index = _system!.roomTypes.indexWhere((rt) => rt.roomTypeId == roomType.roomTypeId);
+              if (index != -1) {
+                setState(() {
+                  _system!.roomTypes[index] = RoomType(
+                    roomTypeId: roomType.roomTypeId,
+                    roomType: type,
+                    area: area,
+                  );
+                });
+                _saveData();
+                Navigator.pop(context);
+                _showSnackBar('房型已更新');
+              }
+            },
+            child: const Text('保存'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditResidentDialog(Resident resident) {
+    final nameController = TextEditingController(text: resident.name);
+    final phoneController = TextEditingController(text: resident.phone);
+    final addressController = TextEditingController(text: resident.address);
+    final prepaidController = TextEditingController(text: resident.prepaidAmount.toString());
+    final arrearsController = TextEditingController(text: resident.arrears.toString());
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('编辑住户'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                decoration: InputDecoration(labelText: '住户编号', hintText: resident.residentId),
+                enabled: false,
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(labelText: '姓名'),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: phoneController,
+                decoration: const InputDecoration(labelText: '电话'),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: addressController,
+                decoration: const InputDecoration(labelText: '地址'),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: prepaidController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: '预付金额'),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: arrearsController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: '欠费金额'),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final name = nameController.text.trim();
+              final phone = phoneController.text.trim();
+              final address = addressController.text.trim();
+              final prepaid = double.tryParse(prepaidController.text.trim()) ?? 0;
+              final arrears = double.tryParse(arrearsController.text.trim()) ?? 0;
+              
+              if (name.isEmpty || phone.isEmpty || address.isEmpty) {
+                _showSnackBar('请填写完整信息');
+                return;
+              }
+              
+              final index = _system!.residents.indexWhere((r) => r.residentId == resident.residentId);
+              if (index != -1) {
+                setState(() {
+                  _system!.residents[index] = Resident(
+                    residentId: resident.residentId,
+                    name: name,
+                    phone: phone,
+                    address: address,
+                    prepaidAmount: prepaid,
+                    arrears: arrears,
+                    roomTypeId: resident.roomTypeId,
+                  );
+                });
+                _saveData();
+                Navigator.pop(context);
+                _showSnackBar('住户信息已更新');
+              }
+            },
+            child: const Text('保存'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditRepairDialog(Repair repair) {
+    final descriptionController = TextEditingController(text: repair.description);
+    String selectedStatus = repair.status;
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('编辑报修'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: descriptionController,
+                decoration: const InputDecoration(labelText: '报修描述'),
+                maxLines: 3,
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: selectedStatus,
+                decoration: const InputDecoration(labelText: '状态'),
+                items: ['待处理', '处理中', '已完成', '已取消'].map((status) {
+                  return DropdownMenuItem(value: status, child: Text(status));
+                }).toList(),
+                onChanged: (value) {
+                  selectedStatus = value ?? repair.status;
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (descriptionController.text.trim().isEmpty) {
+                _showSnackBar('报修描述不能为空');
+                return;
+              }
+              
+              final index = _system!.repairs.indexWhere((r) => r.repairId == repair.repairId);
+              if (index != -1) {
+                setState(() {
+                  _system!.repairs[index] = Repair(
+                    repairId: repair.repairId,
+                    residentId: repair.residentId,
+                    description: descriptionController.text.trim(),
+                    status: selectedStatus,
+                    createTime: repair.createTime,
+                  );
+                });
+                _saveData();
+                Navigator.pop(context);
+                _showSnackBar('报修记录已更新');
+              }
+            },
+            child: const Text('保存'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditComplaintDialog(Complaint complaint) {
+    final contentController = TextEditingController(text: complaint.content);
+    String selectedStatus = complaint.status;
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('编辑投诉'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: contentController,
+                decoration: const InputDecoration(labelText: '投诉内容'),
+                maxLines: 3,
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: selectedStatus,
+                decoration: const InputDecoration(labelText: '状态'),
+                items: ['待处理', '处理中', '已解决', '已取消'].map((status) {
+                  return DropdownMenuItem(value: status, child: Text(status));
+                }).toList(),
+                onChanged: (value) {
+                  selectedStatus = value ?? complaint.status;
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (contentController.text.trim().isEmpty) {
+                _showSnackBar('投诉内容不能为空');
+                return;
+              }
+              
+              final index = _system!.complaints.indexWhere((c) => c.complaintId == complaint.complaintId);
+              if (index != -1) {
+                setState(() {
+                  _system!.complaints[index] = Complaint(
+                    complaintId: complaint.complaintId,
+                    residentId: complaint.residentId,
+                    content: contentController.text.trim(),
+                    status: selectedStatus,
+                    createTime: complaint.createTime,
+                  );
+                });
+                _saveData();
+                Navigator.pop(context);
+                _showSnackBar('投诉记录已更新');
+              }
+            },
+            child: const Text('保存'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditParkingDialog(ParkingSpace parking) {
+    final residentIdController = TextEditingController(text: parking.residentId);
+    final locationController = TextEditingController(text: parking.location);
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('编辑停车位'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                decoration: InputDecoration(labelText: '车位编号', hintText: parking.spaceId),
+                enabled: false,
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: residentIdController,
+                decoration: const InputDecoration(labelText: '住户编号'),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: locationController,
+                decoration: const InputDecoration(labelText: '车位位置'),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final residentId = residentIdController.text.trim();
+              final location = locationController.text.trim();
+              
+              if (residentId.isEmpty || location.isEmpty) {
+                _showSnackBar('请填写完整信息');
+                return;
+              }
+              
+              if (!_system!.residents.any((r) => r.residentId == residentId)) {
+                _showSnackBar('住户编号不存在');
+                return;
+              }
+              
+              final index = _system!.parkingSpaces.indexWhere((ps) => ps.spaceId == parking.spaceId);
+              if (index != -1) {
+                setState(() {
+                  _system!.parkingSpaces[index] = ParkingSpace(
+                    spaceId: parking.spaceId,
+                    residentId: residentId,
+                    location: location,
+                  );
+                });
+                _saveData();
+                Navigator.pop(context);
+                _showSnackBar('停车位已更新');
+              }
+            },
+            child: const Text('保存'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditFeeDialog(Fee fee) {
+    final nameController = TextEditingController(text: fee.name);
+    final amountController = TextEditingController(text: fee.amount.toString());
+    final unitController = TextEditingController(text: fee.unit);
+    final cycleController = TextEditingController(text: fee.cycle);
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('编辑收费项目'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                decoration: InputDecoration(labelText: '收费编号', hintText: fee.feeId),
+                enabled: false,
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(labelText: '收费名称'),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: amountController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(labelText: '收费金额'),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: unitController,
+                decoration: const InputDecoration(labelText: '收费单位'),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: cycleController,
+                decoration: const InputDecoration(labelText: '收费周期'),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final name = nameController.text.trim();
+              final amountStr = amountController.text.trim();
+              final unit = unitController.text.trim();
+              final cycle = cycleController.text.trim();
+              
+              if (name.isEmpty || amountStr.isEmpty || unit.isEmpty || cycle.isEmpty) {
+                _showSnackBar('请填写完整信息');
+                return;
+              }
+              
+              final amount = double.tryParse(amountStr);
+              if (amount == null || amount <= 0) {
+                _showSnackBar('收费金额必须是大于0的数字');
+                return;
+              }
+              
+              final index = _system!.fees.indexWhere((f) => f.feeId == fee.feeId);
+              if (index != -1) {
+                setState(() {
+                  _system!.fees[index] = Fee(
+                    feeId: fee.feeId,
+                    name: name,
+                    amount: amount,
+                    unit: unit,
+                    cycle: cycle,
+                  );
+                });
+                _saveData();
+                Navigator.pop(context);
+                _showSnackBar('收费项目已更新');
+              }
+            },
+            child: const Text('保存'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ========== 删除对话框方法 ==========
+
+  void _showDeleteRoomTypeDialog(RoomType roomType) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('确认删除'),
+        content: Text('确定要删除房型 "${roomType.roomType}" 吗？\n\n此操作不可撤销。'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              // 检查是否有住户使用此房型
+              if (_system!.residents.any((r) => r.roomTypeId == roomType.roomTypeId)) {
+                Navigator.pop(context);
+                _showSnackBar('该房型正在被使用，无法删除');
+                return;
+              }
+              
+              setState(() {
+                _system!.roomTypes.removeWhere((rt) => rt.roomTypeId == roomType.roomTypeId);
+              });
+              _saveData();
+              Navigator.pop(context);
+              _showSnackBar('房型已删除');
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('删除'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteResidentDialog(Resident resident) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('确认删除'),
+        content: Text('确定要删除住户 "${resident.name}" 吗？\n\n此操作将同时删除相关的报修、投诉和车位记录。\n此操作不可撤销。'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _system!.residents.removeWhere((r) => r.residentId == resident.residentId);
+                _system!.repairs.removeWhere((r) => r.residentId == resident.residentId);
+                _system!.complaints.removeWhere((c) => c.residentId == resident.residentId);
+                _system!.parkingSpaces.removeWhere((ps) => ps.residentId == resident.residentId);
+              });
+              _saveData();
+              Navigator.pop(context);
+              _showSnackBar('住户及相关记录已删除');
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('删除'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteRepairDialog(Repair repair) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('确认删除'),
+        content: const Text('确定要删除这条报修记录吗？\n\n此操作不可撤销。'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _system!.repairs.removeWhere((r) => r.repairId == repair.repairId);
+              });
+              _saveData();
+              Navigator.pop(context);
+              _showSnackBar('报修记录已删除');
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('删除'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteComplaintDialog(Complaint complaint) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('确认删除'),
+        content: const Text('确定要删除这条投诉记录吗？\n\n此操作不可撤销。'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _system!.complaints.removeWhere((c) => c.complaintId == complaint.complaintId);
+              });
+              _saveData();
+              Navigator.pop(context);
+              _showSnackBar('投诉记录已删除');
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('删除'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteParkingDialog(ParkingSpace parking) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('确认删除'),
+        content: Text('确定要删除停车位 "${parking.spaceId}" 吗？\n\n此操作不可撤销。'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _system!.parkingSpaces.removeWhere((ps) => ps.spaceId == parking.spaceId);
+              });
+              _saveData();
+              Navigator.pop(context);
+              _showSnackBar('停车位已删除');
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('删除'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteFeeDialog(Fee fee) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('确认删除'),
+        content: Text('确定要删除收费项目 "${fee.name}" 吗？\n\n此操作不可撤销。'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _system!.fees.removeWhere((f) => f.feeId == fee.feeId);
+              });
+              _saveData();
+              Navigator.pop(context);
+              _showSnackBar('收费项目已删除');
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('删除'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ========== 用户管理对话框方法 ==========
+
+  void _showAddUserDialog() {
+    final usernameController = TextEditingController();
+    final passwordController = TextEditingController();
+    
+    showDialog(
+      context: context,
+      builder: (context) {
+        String selectedRole = '普通用户';
+        String? selectedResidentId;
+        
+        return StatefulBuilder(
+          builder: (context, setDialogState) => AlertDialog(
+            title: const Text('添加用户'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: usernameController,
+                    decoration: const InputDecoration(
+                      labelText: '用户名',
+                      hintText: '请输入用户名',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: passwordController,
+                    decoration: const InputDecoration(
+                      labelText: '密码',
+                      hintText: '请输入密码',
+                    ),
+                    obscureText: true,
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: selectedRole,
+                    decoration: const InputDecoration(labelText: '角色'),
+                    items: ['普通用户', '超级管理员'].map((role) {
+                      return DropdownMenuItem(value: role, child: Text(role));
+                    }).toList(),
+                    onChanged: (value) {
+                      setDialogState(() {
+                        selectedRole = value ?? '普通用户';
+                        if (selectedRole == '超级管理员') {
+                          selectedResidentId = null;
+                        }
+                      });
+                    },
+                  ),
+                  if (selectedRole == '普通用户') ...[
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String?>(
+                      value: selectedResidentId,
+                      decoration: const InputDecoration(labelText: '关联住户（可选）'),
+                      items: [
+                        const DropdownMenuItem<String?>(value: null, child: Text('无')),
+                        ..._system!.residents.map((r) {
+                          return DropdownMenuItem<String?>(
+                            value: r.residentId,
+                            child: Text('${r.residentId} - ${r.name}'),
+                          );
+                        }),
+                      ],
+                      onChanged: (value) {
+                        setDialogState(() {
+                          selectedResidentId = value;
+                        });
+                      },
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('取消'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  final username = usernameController.text.trim();
+                  final password = passwordController.text.trim();
+                  
+                  if (username.isEmpty || password.isEmpty) {
+                    _showSnackBar('用户名和密码不能为空');
+                    return;
+                  }
+                  
+                  // 检查用户名是否已存在
+                  if (_system!.users.any((u) => u.username == username)) {
+                    _showSnackBar('用户名已存在');
+                    return;
+                  }
+                  
+                  setState(() {
+                    _system!.users.add(User(
+                      username: username,
+                      password: password,
+                      role: selectedRole,
+                      residentId: selectedResidentId,
+                    ));
+                  });
+                  
+                  _saveData();
+                  Navigator.pop(context);
+                  _showSnackBar('用户已添加');
+                },
+                child: const Text('添加'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showEditUserDialog(User user) {
+    final usernameController = TextEditingController(text: user.username);
+    final passwordController = TextEditingController(text: user.password);
+    
+    showDialog(
+      context: context,
+      builder: (context) {
+        String selectedRole = user.role;
+        String? selectedResidentId = user.residentId;
+        
+        return StatefulBuilder(
+          builder: (context, setDialogState) => AlertDialog(
+            title: const Text('编辑用户'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: usernameController,
+                    decoration: const InputDecoration(labelText: '用户名'),
+                    enabled: false, // 用户名不可修改
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: passwordController,
+                    decoration: const InputDecoration(
+                      labelText: '密码',
+                      hintText: '请输入新密码',
+                    ),
+                    obscureText: true,
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: selectedRole,
+                    decoration: const InputDecoration(labelText: '角色'),
+                    items: ['普通用户', '超级管理员'].map((role) {
+                      return DropdownMenuItem(value: role, child: Text(role));
+                    }).toList(),
+                    onChanged: (value) {
+                      setDialogState(() {
+                        selectedRole = value ?? user.role;
+                        if (selectedRole == '超级管理员') {
+                          selectedResidentId = null;
+                        }
+                      });
+                    },
+                  ),
+                  if (selectedRole == '普通用户') ...[
+                    const SizedBox(height: 16),
+                    DropdownButtonFormField<String?>(
+                      value: selectedResidentId,
+                      decoration: const InputDecoration(labelText: '关联住户（可选）'),
+                      items: [
+                        const DropdownMenuItem<String?>(value: null, child: Text('无')),
+                        ..._system!.residents.map((r) {
+                          return DropdownMenuItem<String?>(
+                            value: r.residentId,
+                            child: Text('${r.residentId} - ${r.name}'),
+                          );
+                        }),
+                      ],
+                      onChanged: (value) {
+                        setDialogState(() {
+                          selectedResidentId = value;
+                        });
+                      },
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('取消'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  final password = passwordController.text.trim();
+                  
+                  if (password.isEmpty) {
+                    _showSnackBar('密码不能为空');
+                    return;
+                  }
+                  
+                  final index = _system!.users.indexWhere((u) => u.username == user.username);
+                  if (index != -1) {
+                    setState(() {
+                      _system!.users[index] = User(
+                        username: user.username,
+                        password: password,
+                        role: selectedRole,
+                        residentId: selectedResidentId,
+                      );
+                    });
+                    
+                    // 如果修改的是当前登录用户，更新认证服务
+                    if (user.username == widget.authService.getCurrentUser()?.username) {
+                      widget.authService.setSystem(_system!);
+                      widget.authService.login(user.username, password);
+                    }
+                    
+                    _saveData();
+                    Navigator.pop(context);
+                    _showSnackBar('用户信息已更新');
+                  }
+                },
+                child: const Text('保存'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showDeleteUserDialog(User user) {
+    // 不允许删除当前登录的用户
+    if (user.username == widget.authService.getCurrentUser()?.username) {
+      _showSnackBar('不能删除当前登录的用户');
+      return;
+    }
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('确认删除'),
+        content: Text('确定要删除用户 "${user.username}" 吗？\n\n此操作不可撤销。'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              setState(() {
+                _system!.users.removeWhere((u) => u.username == user.username);
+              });
+              _saveData();
+              Navigator.pop(context);
+              _showSnackBar('用户已删除');
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('删除'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
     );
   }
 }
