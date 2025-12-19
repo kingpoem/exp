@@ -1,4 +1,4 @@
-.PHONY: a b1 b2 b22 b3 b4 clean
+.PHONY: a b1 b2 b3 b4 clean
 
 # A题：线性时间选择问题
 # 执行编译、测试和报告生成的完整流程
@@ -17,32 +17,30 @@ a:
 	@echo "  文本报告: a/test_report.txt"
 	@echo "  HTML报告: a/test_report.html"
 
-# B题：小区物业管理系统 - Python + tkinter
+# B题：小区物业管理系统 - Web端运行
 b1:
-	@echo "运行B1：Python + tkinter GUI版本..."
-	cd b1 && uv run python gui_main.py
-
-# B题：小区物业管理系统 - Dart + Flutter
-b2:
-	@echo "运行B2：Dart + Flutter版本..."
-	cd b2 && flutter run -d chrome
-
-# B题：小区物业管理系统 - Dart + Flutter (构建APK)
-b22:
 	@echo "=========================================="
-	@echo "B2：构建Flutter APK安装包"
+	@echo "B题：Flutter Web端运行"
+	@echo "=========================================="
+	@echo "启动Flutter Web应用..."
+	@cd b && flutter run -d chrome
+
+# B题：小区物业管理系统 - Android APK构建
+b2:
+	@echo "=========================================="
+	@echo "B题：构建Flutter Android APK安装包"
 	@echo "=========================================="
 	@echo "步骤1: 检查Flutter环境..."
-	@cd b2 && flutter doctor
+	@cd b && flutter doctor
 	@echo ""
 	@echo "步骤2: 获取依赖..."
-	@cd b2 && flutter pub get
+	@cd b && flutter pub get
 	@echo ""
 	@echo "步骤3: 构建APK..."
-	@cd b2 && flutter build apk --release
+	@cd b && flutter build apk --release
 	@echo ""
 	@echo "✓ APK构建完成！"
-	@echo "  APK位置: b2/build/app/outputs/flutter-apk/app-release.apk"
+	@echo "  APK位置: b/build/app/outputs/flutter-apk/app-release.apk"
 
 # B题：小区物业管理系统 - Rust + Bun + Tauri
 b3:
@@ -62,13 +60,9 @@ clean:
 	@echo "清理A题生成的文件..."
 	@cd a && make clean
 	@echo ""
-	@echo "清理B1题生成的文件..."
-	@cd b1 && rm -rf __pycache__ *.pyc property_management_system.egg-info .pytest_cache .mypy_cache dist build .coverage htmlcov .tox
-	@echo "  ✓ 已清理Python缓存和构建文件"
-	@echo ""
-	@echo "清理B2题生成的文件..."
-	@cd b2 && flutter clean 2>/dev/null || true
-	@cd b2 && rm -rf .dart_tool .flutter-plugins .flutter-plugins-dependencies .packages build
+	@echo "清理B题生成的文件..."
+	@cd b && flutter clean 2>/dev/null || true
+	@cd b && rm -rf .dart_tool .flutter-plugins .flutter-plugins-dependencies .packages build
 	@echo "  ✓ 已清理Flutter构建文件"
 	@echo ""
 	@echo "✓ 所有清理完成！"

@@ -29,11 +29,11 @@
 （3）程序的层次清晰，可读性强。
 （4）界面美观，交互方便。
 
-#### b1
-使用 python 语言显示，包管理器使用 uv
-
-#### b2
 使用 dart 语言和 flutter 框架书写，支持 web 端和安卓应用
+
+**运行方式：**
+- `make b1` - 在 Web 浏览器中运行（Chrome）
+- `make b2` - 构建 Android APK 安装包
 
 ### 考核其他要求
 
@@ -45,4 +45,8 @@
 
 ### 代码结构说明
 
-根目录下有一个 Makefile 文件，make a 和 make b1/b2 分别可以启动两个实验（第一个实验启动测试报告，第二个实验直接运行）
+根目录下有一个 Makefile 文件：
+- `make a` - 运行A题测试并生成报告
+- `make b1` - 运行B题Web端（Flutter Web）
+- `make b2` - 构建B题Android APK安装包
+- `make clean` - 清理所有生成的文件
