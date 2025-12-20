@@ -54,7 +54,7 @@ int find_median(int arr[], int left, int right) {
 }
 
 /**
- * 使用二次取中法找到pivot元素（Median of Medians算法）
+ * 使用二次取中法找到pivot元素
  *
  * 算法复杂度分析：
  * - 分组：O(n) - 将数组分成n/5组

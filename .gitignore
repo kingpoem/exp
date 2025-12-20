@@ -42,9 +42,9 @@ a/*.so
 a/*.dylib
 a/*.exe
 
-# 测试报告（可选：如果不想提交测试报告，取消下面的注释）
-# a/test_report.txt
-# a/test_report.html
+# 测试报告
+a/test_report.txt
+a/test_report.html
 
 # ============================================
 # B1题：Python项目
