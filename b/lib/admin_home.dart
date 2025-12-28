@@ -296,7 +296,10 @@ class _AdminHomePageState extends State<AdminHomePage> with SingleTickerProvider
         displayResidents = _system!.residents.where((r) => r.arrears > 0).toList();
         break;
       case 'sorted':
-        displayResidents = List.from(_system!.residents)
+        // 按欠费排序，排除欠费为0元的住户
+        displayResidents = _system!.residents
+            .where((r) => r.arrears > 0)
+            .toList()
           ..sort((a, b) => b.arrears.compareTo(a.arrears));
         break;
       default:
