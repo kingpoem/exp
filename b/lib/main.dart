@@ -1,5 +1,4 @@
 /// 小区物业管理系统 - Flutter版本
-/// 支持Web端和Android应用
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

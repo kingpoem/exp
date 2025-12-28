@@ -24,6 +24,10 @@ class _AdminHomePageState extends State<AdminHomePage> with SingleTickerProvider
   
   // 住户管理筛选状态
   String _residentFilter = 'all'; // 'all', 'arrears', 'sorted'
+  
+  // 车位管理搜索状态
+  final TextEditingController _parkingSearchController = TextEditingController();
+  String _parkingSearchType = 'spaceId'; // 'spaceId', 'residentId', 'residentName', 'location'
 
   @override
   void initState() {
@@ -35,6 +39,7 @@ class _AdminHomePageState extends State<AdminHomePage> with SingleTickerProvider
   @override
   void dispose() {
     _tabController.dispose();
+    _parkingSearchController.dispose();
     super.dispose();
   }
 
@@ -496,11 +501,135 @@ class _AdminHomePageState extends State<AdminHomePage> with SingleTickerProvider
   }
 
   Widget _buildParkingTab() {
+    // 根据搜索条件筛选车位
+    List<ParkingSpace> displayParkingSpaces = _system!.parkingSpaces;
+    final searchKeyword = _parkingSearchController.text.trim().toLowerCase();
+    
+    if (searchKeyword.isNotEmpty) {
+      displayParkingSpaces = _system!.parkingSpaces.where((ps) {
+        final resident = _system!.residents.firstWhere(
+          (res) => res.residentId == ps.residentId,
+          orElse: () => Resident(
+            residentId: '',
+            name: '未知',
+            phone: '',
+            address: '',
+            prepaidAmount: 0,
+            arrears: 0,
+            roomTypeId: '',
+          ),
+        );
+        
+        switch (_parkingSearchType) {
+          case 'spaceId':
+            return ps.spaceId.toLowerCase().contains(searchKeyword);
+          case 'residentId':
+            return ps.residentId.toLowerCase().contains(searchKeyword);
+          case 'residentName':
+            return resident.name.toLowerCase().contains(searchKeyword);
+          case 'location':
+            return ps.location.toLowerCase().contains(searchKeyword);
+          default:
+            return true;
+        }
+      }).toList();
+    }
+    
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // 搜索区域
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '搜索车位',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 12),
+                  // 搜索类型选择
+                  Row(
+                    children: [
+                      Expanded(
+                        child: DropdownButtonFormField<String>(
+                          value: _parkingSearchType,
+                          decoration: const InputDecoration(
+                            labelText: '搜索类型',
+                            border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          ),
+                          items: const [
+                            DropdownMenuItem(
+                              value: 'spaceId',
+                              child: Text('车位编号'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'residentId',
+                              child: Text('住户编号'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'residentName',
+                              child: Text('住户姓名'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'location',
+                              child: Text('车位位置'),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            setState(() {
+                              _parkingSearchType = value ?? 'spaceId';
+                            });
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        flex: 2,
+                        child: TextField(
+                          controller: _parkingSearchController,
+                          decoration: InputDecoration(
+                            labelText: '搜索关键词',
+                            hintText: '请输入搜索内容',
+                            border: const OutlineInputBorder(),
+                            suffixIcon: _parkingSearchController.text.isNotEmpty
+                                ? IconButton(
+                                    icon: const Icon(Icons.clear),
+                                    onPressed: () {
+                                      setState(() {
+                                        _parkingSearchController.clear();
+                                      });
+                                    },
+                                  )
+                                : const Icon(Icons.search),
+                          ),
+                          onChanged: (value) {
+                            setState(() {});
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  if (searchKeyword.isNotEmpty)
+                    Text(
+                      '找到 ${displayParkingSpaces.length} 个匹配的车位',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          // 车位列表
           Card(
             child: Column(
               children: [
@@ -512,28 +641,56 @@ class _AdminHomePageState extends State<AdminHomePage> with SingleTickerProvider
                   ),
                 ),
                 const Divider(),
-                ..._system!.parkingSpaces.map((ps) {
-                  final resident = _system!.residents.firstWhere((res) => res.residentId == ps.residentId, orElse: () => Resident(residentId: '', name: '未知', phone: '', address: '', prepaidAmount: 0, arrears: 0, roomTypeId: ''));
-                  return ListTile(
-                    title: Text('${ps.spaceId} - ${resident.name}'),
-                    subtitle: Text(ps.location),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit, color: Colors.blue),
-                          onPressed: () => _showEditParkingDialog(ps),
-                          tooltip: '编辑',
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.red),
-                          onPressed: () => _showDeleteParkingDialog(ps),
-                          tooltip: '删除',
-                        ),
-                      ],
+                if (displayParkingSpaces.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(
+                      searchKeyword.isNotEmpty
+                          ? '未找到匹配的车位信息'
+                          : '暂无车位记录',
+                      style: TextStyle(color: Colors.grey[600]),
                     ),
-                  );
-                }),
+                  )
+                else
+                  ...displayParkingSpaces.map((ps) {
+                    final resident = _system!.residents.firstWhere(
+                      (res) => res.residentId == ps.residentId,
+                      orElse: () => Resident(
+                        residentId: '',
+                        name: '未知',
+                        phone: '',
+                        address: '',
+                        prepaidAmount: 0,
+                        arrears: 0,
+                        roomTypeId: '',
+                      ),
+                    );
+                    return ListTile(
+                      title: Text('${ps.spaceId} - ${resident.name}'),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('住户编号: ${ps.residentId}'),
+                          Text('车位位置: ${ps.location}'),
+                        ],
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit, color: Colors.blue),
+                            onPressed: () => _showEditParkingDialog(ps),
+                            tooltip: '编辑',
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () => _showDeleteParkingDialog(ps),
+                            tooltip: '删除',
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
               ],
             ),
           ),
